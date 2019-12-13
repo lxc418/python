@@ -66,8 +66,11 @@ saturation_effective_NSL_ay, saturation_NSL_ay=SWCC_Fayer1995WRR()
 
 thickness_funnel_ay            = radius_particle_m/np.exp(1/r_c_m*(r_m_ay-r_0_ay))
 saturation_effective_TSL_ay    = saturation_effective_NSL_ay**(1+n)
-relative_wetted_surface_ay     = saturation_effective_TSL_ay * (r_m_ay/(r_0_ay+radius_particle_m))**2
+relative_wetted_surface_ay     = saturation_effective_TSL_ay * (r_m_ay/(r_0_ay+r_c_m))**2
+#relative_wetted_surface_ay     = saturation_effective_TSL_ay * (1-thickness_funnel_ay*(1-porosity)/radius_particle_m);
+
 water_content_NSL_ay           = porosity * saturation_NSL_ay
+
 r_3_ay                         = r_m_ay/relative_wetted_surface_ay**0.5;
 
 evapo_rate_relative_capillary  = 1/(1  +  r_3_ay**2 * thickness_funnel_ay/r_2_ay**2/thickness_aero_edl_m + \
@@ -80,11 +83,11 @@ evapo_rate_relative_vapor      = (thickness_aero_edl_m+thickness_funnel_ay)*tort
 evapo_rate_relative            = evapo_rate_relative_capillary*(1-evapo_rate_relative_vapor)+evapo_rate_relative_vapor
 
 #%% surface resistance
-surface_resistance_ay_sPm        = thickness_aero_edl_m/diffusivity_m2Ps*(1/evapo_rate_relative - 1)
+surface_resistance_new        = thickness_aero_edl_m/diffusivity_m2Ps*(1/evapo_rate_relative - 1)
 
-surface_resistance_van_Genuchten = 10*np.exp(35.63*(0.15-water_content_NSL_ay)) #surface resistance from model of van Genuchten
+surface_resistance_Griend_Owe    = 10*np.exp(35.63*(0.15-water_content_NSL_ay)) #surface resistance from model of van Genuchten
 
-radius_pore_avg = 2.3e-3   #average pore size
+radius_pore_avg                  = xi*-av_Pm  #average pore size(from Lehmann-Soil Texture Effects on Surface Resistance to Bare-Soil Evaporation)
 evapo_rate_relative_Sch          = 1/(1+2/np.pi*radius_pore_avg/(thickness_aero_edl_m/diffusivity_m2Ps*diffusivity_m2Ps)*(np.pi/4/water_content_NSL_ay)**0.5*((np.pi/4/water_content_NSL_ay)**0.5-1))
 surface_resistance_Schlunder     = thickness_aero_edl_m/diffusivity_m2Ps*(1/evapo_rate_relative_Sch - 1) #surface resistance from model of van Genuchten
 
@@ -93,8 +96,8 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots(figsize=(5, 3))
 #ax.plot(saturation_NSL_ay,surface_resistance_ay_sPm, color='b', marker='.', linestyle='solid')
-ax.plot(saturation_NSL_ay,surface_resistance_ay_sPm, 'r', label='new model' )
-ax.plot(saturation_NSL_ay,surface_resistance_van_Genuchten, 'b', label='van Genuchten'  )
+ax.plot(saturation_NSL_ay,surface_resistance_new, 'r', label='new model' )
+ax.plot(saturation_NSL_ay,surface_resistance_Griend_Owe, 'b', label='Griend & Owe'  )
 ax.plot(saturation_NSL_ay,surface_resistance_Schlunder, 'g', label='Schlunder'  )
 
 plt.yscale('symlog')
@@ -105,5 +108,5 @@ ax.set_ylabel('Surface resistance (s/m)')
 ax.set_xlim(xmin=0, xmax=1)
 ax.set_ylim(ymin=0.5, ymax=10000)
 fig.tight_layout()
-#plt.show()
+plt.show()
 plt.savefig('Rs_v_Se.svg', format='svg', dpi=300)
