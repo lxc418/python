@@ -56,13 +56,7 @@ r_0_ay   = -xi*av_Pm*(-av_Pm*psim_m_ay)**(nv-1) * (  (1+ (-av_Pm*psim_m_ay)**-nv
 r_c_m    = radius_particle_m/np.tan(beta);
 r_2_ay   = r_0_ay+r_c_m;
 
-def SWCC_Fayer1995WRR():
-    beta_Fayer = (np.log(-psi_0_m)-np.log(-psim_m_ay))/np.log(-psi_0_m)
-    saturation_effective_NSL_ay   = ( 1+(-psim_m_ay*av_Pm)**nv   )**(1/nv-1)
-    saturation_NSL_ay             = (1-beta_Fayer*saturation_residual)*saturation_effective_NSL_ay +beta_Fayer*saturation_residual
-    return saturation_effective_NSL_ay, saturation_NSL_ay
-
-saturation_effective_NSL_ay, saturation_NSL_ay=SWCC_Fayer1995WRR()
+saturation_effective_NSL_ay, saturation_NSL_ay=SWCC_Fayer1995WRR(psim_m_ay, av_Pm, nv, psi_0_m, saturation_residual)
 
 thickness_funnel_ay            = radius_particle_m/np.exp(1/r_c_m*(r_m_ay-r_0_ay))
 saturation_effective_TSL_ay    = saturation_effective_NSL_ay**(1+n)
